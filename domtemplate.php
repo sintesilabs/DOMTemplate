@@ -90,14 +90,9 @@ abstract class DOMTemplateNode {
 		return str_replace (array_keys (self::$entities), array_values (self::$entities), $html);
 	}
 	//a table of HTML entites to reverse, '&', '<' and '>' are exlcuded so we don’t turn user text into working HTML!
+	//hard-coded for backwards-compatibility with php versions < 5.3.4
+	//http://www.whatwg.org/specs/web-apps/current-work/multipage/named-character-references.html
 	public static $entities = array (
-		//BTW, if you have PHP 5.3.4+ you can produce this whole array with just two lines of code:
-		//
-		//	$entities = array_flip (get_html_translation_table (HTML_ENTITIES, ENT_NOQUOTES, 'UTF-8'));
-		//	unset ($entities['&'], $entities['<'], $entities['>']);
-		//
-		//also, this list is *far* from comprehensive. see this page for the full list
-		//http://www.whatwg.org/specs/web-apps/current-work/multipage/named-character-references.html
 		'&nbsp;'        => ' ', '&iexcl;'       => '¡', '&cent;'        => '¢', '&pound;'       => '£',
 		'&curren;'      => '¤', '&yen;'         => '¥', '&brvbar;'      => '¦', '&sect;'        => '§',
 		'&uml;'         => '¨', '&copy;'        => '©', '&ordf;'        => 'ª', '&laquo;'       => '«',
@@ -244,6 +239,11 @@ abstract class DOMTemplateNode {
 		// b. prefix element names in your XPath queries with this namespace
 		if (!empty ($namespaces)) foreach ($namespaces as $NS=>$URI) $this->DOMXPath->registerNamespace ($NS, $URI);
 		$this->namespaces = $namespaces;
+		// overwrite the hard-coded list of entities with a generated list on modern php
+		if (version_compare(PHP_VERSION, '5.3.4', '>=')) {
+			self::$entities = array_flip (get_html_translation_table (HTML_ENTITIES, ENT_NOQUOTES, 'UTF-8'));
+			unset (self::$entities['&amp;'], self::$entities['&lt;'], self::$entities['&gt;']);
+		}
 	}
 	
 	/* query : find node(s)
