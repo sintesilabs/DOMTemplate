@@ -338,6 +338,22 @@ abstract class DOMTemplateNode {
 		;
 	}
 	
+	/* addAttribute : add an attribute to an element
+	 -------------------------------------------------------------------------------------------------------------- */
+	public function addAttribute ($query, $tag, $value){
+		foreach($this->query($query) as $node){
+			
+			$preserve = trim($node->getAttribute($tag));
+			if(!empty($preserve)){
+				$preserve .= " ";
+			}
+			
+			$node->setAttribute($tag, $preserve . $value);
+		}
+		
+		return $this;
+	}
+	
 	/* remove : remove all the elements / attributes that match an xpath query
 	   -------------------------------------------------------------------------------------------------------------- */
 	public function remove (
@@ -462,6 +478,11 @@ class DOMTemplateRepeaterArray {
 	//refer to `DOMTemplateNode->remove`
 	public function remove ($query) {
 		foreach ($this->nodes as $node) $node->remove ($query); return $this;
+	}
+	
+	//refer to `DOMTemplateNode->addAttribute`
+	public function addAttribute($query, $tag, $value){
+		foreach ($this->nodes as $node) $node->addAttribute ($query, $tag, $value); return $this;
 	}
 }
 
